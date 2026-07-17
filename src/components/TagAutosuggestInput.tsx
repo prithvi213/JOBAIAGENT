@@ -16,6 +16,8 @@ interface TagAutosuggestInputProps {
   fetchSuggestions?: (query: string) => Promise<string[]>;
   placeholder?: string;
   maxSuggestions?: number;
+  /** Maximum number of selected tags. Omit for no limit. */
+  maxTags?: number;
   debounceMs?: number;
 }
 
@@ -26,6 +28,7 @@ export default function TagAutosuggestInput({
   fetchSuggestions,
   placeholder,
   maxSuggestions = 8,
+  maxTags,
   debounceMs = 300,
 }: TagAutosuggestInputProps) {
   const [inputValue, setInputValue] = useState("");
@@ -35,6 +38,7 @@ export default function TagAutosuggestInput({
   const containerRef = useRef<HTMLDivElement>(null);
   const guardPhantomClick = usePhantomClickGuard();
   const safeValue = value ?? [];
+  const reachedMaxTags = maxTags !== undefined && safeValue.length >= maxTags;
 
   const { results: remoteResults, loading } = useDebouncedSuggestions(
     fetchSuggestions ? inputValue : "",
@@ -61,6 +65,7 @@ export default function TagAutosuggestInput({
   useOutsideClick(containerRef, isOpen, () => setIsOpen(false));
 
   function addTag(tag: string) {
+    if (reachedMaxTags) return;
     const trimmed = tag.trim();
     if (!trimmed) return;
     const alreadySelected = safeValue.some(
@@ -135,8 +140,15 @@ export default function TagAutosuggestInput({
         <input
           ref={inputRef}
           className="min-w-[8ch] flex-1 bg-transparent outline-none"
-          placeholder={safeValue.length === 0 ? placeholder : ""}
+          placeholder={
+            reachedMaxTags
+              ? `Maximum of ${maxTags} roles selected`
+              : safeValue.length === 0
+                ? placeholder
+                : ""
+          }
           value={inputValue}
+          disabled={reachedMaxTags}
           onChange={(e) => {
             setInputValue(e.target.value);
             setIsOpen(true);

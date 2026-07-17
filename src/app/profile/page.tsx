@@ -43,13 +43,17 @@ export default function ProfilePage() {
           />
         </Field>
 
-        <Field label="Target roles">
+        <Field label="Target roles (up to 4)">
           <TagAutosuggestInput
             value={profile.targetRoles}
             onChange={(next) => setProfile({ ...profile, targetRoles: next })}
             suggestions={ROLE_SUGGESTIONS}
+            maxTags={4}
             placeholder="e.g. Frontend Engineer, Product Designer"
           />
+          <span className="text-xs text-black/60 dark:text-white/60">
+            Choose up to 4 roles, or type a job title that is not listed.
+          </span>
         </Field>
 
         <Field label="Skills">
