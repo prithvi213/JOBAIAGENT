@@ -48,6 +48,8 @@ export default function ProfilePage() {
             value={profile.targetRoles}
             onChange={(next) => setProfile({ ...profile, targetRoles: next })}
             suggestions={ROLE_SUGGESTIONS}
+            showSuggestionsOnFocus
+            maxSuggestions={ROLE_SUGGESTIONS.length}
             maxTags={4}
             placeholder="e.g. Frontend Engineer, Product Designer"
           />

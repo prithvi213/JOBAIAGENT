@@ -16,6 +16,8 @@ interface TagAutosuggestInputProps {
   fetchSuggestions?: (query: string) => Promise<string[]>;
   placeholder?: string;
   maxSuggestions?: number;
+  /** Show static suggestions immediately when the input receives focus. */
+  showSuggestionsOnFocus?: boolean;
   /** Maximum number of selected tags. Omit for no limit. */
   maxTags?: number;
   debounceMs?: number;
@@ -28,6 +30,7 @@ export default function TagAutosuggestInput({
   fetchSuggestions,
   placeholder,
   maxSuggestions = 8,
+  showSuggestionsOnFocus = false,
   maxTags,
   debounceMs = 300,
 }: TagAutosuggestInputProps) {
@@ -48,16 +51,19 @@ export default function TagAutosuggestInput({
 
   const filtered = useMemo(() => {
     const query = inputValue.trim().toLowerCase();
-    if (!query) return [];
     const selected = new Set(safeValue.map((v) => v.toLowerCase()));
     if (fetchSuggestions) {
+      if (!query) return [];
       return remoteResults
         .filter((s) => !selected.has(s.toLowerCase()))
         .slice(0, maxSuggestions);
     }
     return (suggestions ?? [])
       .filter(
-        (s) => !selected.has(s.toLowerCase()) && s.toLowerCase().includes(query),
+        (s) =>
+          !selected.has(s.toLowerCase()) &&
+          (query.length > 0 || showSuggestionsOnFocus) &&
+          s.toLowerCase().includes(query),
       )
       .slice(0, maxSuggestions);
   }, [inputValue, suggestions, remoteResults, fetchSuggestions, safeValue, maxSuggestions]);
@@ -116,7 +122,7 @@ export default function TagAutosuggestInput({
   }
 
   const showDropdown =
-    isOpen && inputValue.trim().length > 0 && (filtered.length > 0 || loading);
+    isOpen && !reachedMaxTags && (filtered.length > 0 || loading);
 
   return (
     <div ref={containerRef} className="relative">
@@ -149,6 +155,7 @@ export default function TagAutosuggestInput({
           }
           value={inputValue}
           disabled={reachedMaxTags}
+          aria-expanded={showDropdown}
           onChange={(e) => {
             setInputValue(e.target.value);
             setIsOpen(true);
@@ -160,7 +167,7 @@ export default function TagAutosuggestInput({
       </div>
 
       {showDropdown && (
-        <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-md border border-black/10 bg-white text-sm shadow-md dark:border-white/10 dark:bg-neutral-900">
+        <ul className="absolute z-10 mt-1 max-h-72 w-full overflow-y-auto rounded-md border border-black/10 bg-white text-sm shadow-md dark:border-white/10 dark:bg-neutral-900">
           {filtered.length === 0 && loading && (
             <li className="px-3 py-2 text-black/50 dark:text-white/50">
               Searching…

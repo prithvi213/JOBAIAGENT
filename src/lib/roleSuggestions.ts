@@ -1,4 +1,4 @@
-// Generated from O*NET Work Activities data (work_activities.csv).
+// Generated from O*NET Work Activities data (data/onet/work_activities.csv).
 // Run: node scripts/generate-role-suggestions.mjs <path-to-work_activities.csv>
 export const ROLE_SUGGESTIONS: string[] = [
   "Accountants and Auditors",

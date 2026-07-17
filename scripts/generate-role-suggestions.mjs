@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 
-const inputPath = process.argv[2] ?? "work_activities.csv";
+const inputPath = process.argv[2] ?? "data/onet/work_activities.csv";
 const outputPath = "src/lib/roleSuggestions.ts";
 
 function parseCsvLine(line) {
