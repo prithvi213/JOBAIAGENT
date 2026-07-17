@@ -63,6 +63,8 @@ export default function ProfilePage() {
             value={profile.skills}
             onChange={(next) => setProfile({ ...profile, skills: next })}
             suggestions={SKILL_SUGGESTIONS}
+            showSuggestionsOnFocus
+            maxSuggestions={100}
             placeholder="e.g. React, TypeScript, SQL"
           />
         </Field>
